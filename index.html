@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sổ Tính Tiền Điện Trọ & Phí Sinh Hoạt Pro V2</title>
+  <title>Sổ Tính Tiền Điện Trọ & Phí Sinh Hoạt Pro V3</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -18,12 +18,11 @@
       --border-color: #334155;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-slate); color: var(--text-main); padding-bottom: 70px; }
+    body { background-color: var(--bg-slate); color: var(--text-main); padding-bottom: 75px; }
     
     .v1_tro_header { background: var(--card-slate); padding: 14px; text-align: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
     .v1_tro_header h1 { font-size: 17px; color: var(--accent-emerald); }
     
-    /* thanh tab cho phep cuon ngang mượt ma tren dien thoai */
     .v1_nav_tabs { display: flex; background: #111827; border-bottom: 1px solid var(--border-color); overflow-x: auto; scrollbar-width: none; }
     .v1_nav_tabs::-webkit-scrollbar { display: none; }
     .v1_tab_btn { flex: 0 0 auto; min-width: 20%; padding: 12px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
@@ -44,6 +43,7 @@
     .btn-submit { width: 100%; background: var(--accent-emerald); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background 0.2s; }
     .btn-submit:active { transform: scale(0.98); background: var(--accent-hover); }
     .btn-secondary { background: #334155; color: #f8fafc; }
+    .btn-zalo { background: #0068ff; color: #fff; margin-top: 8px; }
 
     .result-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-emerald); padding: 14px; border-radius: 8px; margin-top: 12px; display: none; }
     .result-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
@@ -60,7 +60,7 @@
 <body>
 
   <header class="v1_tro_header">
-    <h1>⚡ Sổ Tính Tiền Điện Trọ Pro V2</h1>
+    <h1>⚡ Sổ Tính Tiền Điện Trọ Pro V3</h1>
   </header>
 
   <nav class="v1_nav_tabs">
@@ -76,17 +76,23 @@
     <!-- TAB 1: TÍNH TIỀN ĐIỆN NƯỚC -->
     <div id="tab_calc" class="v1_tab_content active">
       <div class="c_elc_card_x1">
-        <h3>1. Số Điện & Nước</h3>
+        <h3>1. Khai Báo Số Điện & Nước</h3>
         <div class="form-group">
-          <label>Số điện cũ (kWh):</label>
-          <input type="number" id="inp_elc_old" class="form-control" value="1050">
+          <label>Mã / Tên phòng trọ:</label>
+          <input type="text" id="inp_room_name" class="form-control" value="Phòng 101">
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;">
+            <label>Số điện cũ (kWh):</label>
+            <input type="number" id="inp_elc_old" class="form-control" value="1050">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Số điện mới (kWh):</label>
+            <input type="number" id="inp_elc_new" class="form-control" value="1120">
+          </div>
         </div>
         <div class="form-group">
-          <label>Số điện mới (kWh):</label>
-          <input type="number" id="inp_elc_new" class="form-control" value="1120">
-        </div>
-        <div class="form-group">
-          <label>Đơn giá điện (đ/kWh):</label>
+          <label>Đơn giá điện trọ (đ/kWh):</label>
           <input type="number" id="inp_elc_price" class="form-control" value="3500">
         </div>
       </div>
@@ -102,17 +108,20 @@
           <input type="number" id="inp_people_cnt" class="form-control" value="3">
         </div>
         <div class="form-group">
-          <label>Internet + Rác + Phí chung (đ):</label>
+          <label>Internet + Rác + Dịch vụ chung (đ):</label>
           <input type="number" id="inp_other_fee" class="form-control" value="150000">
         </div>
         <button class="btn-submit" onclick="_exec_calc_bill()">🧮 TÍNH TỔNG HÓA ĐƠN</button>
       </div>
 
       <div id="resultBox" class="result-box">
+        <div class="result-row"><span>Phòng:</span><strong id="res_room_name">Phòng 101</strong></div>
         <div class="result-row"><span>Điện tiêu thụ:</span><span id="res_elc_kwh">0 kWh</span></div>
         <div class="result-row"><span>Tiền điện:</span><span id="res_elc_money">0 đ</span></div>
         <div class="result-row"><span>Tiền nước tổng:</span><span id="res_water_money">0 đ</span></div>
         <div class="result-row result-total"><span>TỔNG TIỀN PHÒNG:</span><span id="res_total_money">0 đ</span></div>
+        
+        <button class="btn-submit btn-zalo" onclick="_copy_zalo_bill()">📱 CHÉP HÓA ĐƠN GỬI ZALO</button>
       </div>
     </div>
 
@@ -176,7 +185,6 @@
   </div>
 
   <script>
-    // BẮT LỖI JS TOÀN CỤC BÁO LỖI THAY VÌ MÀN HÌNH TRẮNG
     window.onerror = function (msg, url, line) {
       alert("Lỗi Runtime App:\n" + msg + "\nTại dòng: " + line);
       return false;
@@ -192,14 +200,13 @@
       interstitialAdId: "ca-app-pub-3940256099942544/1033173712"
     };
 
-    // 1. KHOẢI TẠO DEVICE ID & USER UID CỐ ĐỊNH
     let deviceId = localStorage.getItem('_app_dev_id') || ('dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
     localStorage.setItem('_app_dev_id', deviceId);
 
     let userUid = localStorage.getItem('_app_user_uid') || ('usr_' + Math.random().toString(36).substr(2, 10) + '_' + Date.now().toString(36));
     localStorage.setItem('_app_user_uid', userUid);
 
-    // 2. TELEMETRY LOGGING
+    // TELEMETRY
     function pushLog(eventType, screenName, keyword = '') {
       const payload = {
         app_token: APP_CONFIG.appToken,
@@ -229,9 +236,7 @@
       }
     }
 
-    window.addEventListener('online', () => pushLog('network_reconnected', 'system'));
-
-    // 3. ADMOB SMART TRIGGER
+    // ADMOB SMART TRIGGER - ADAPTIVE BANNER FULL WIDTH
     async function initAdMob() {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
         try {
@@ -246,11 +251,12 @@
 
     function showAdMobBanner() {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
-        const { AdMob } = window.Capacitor.Plugins;
+        const { AdMob, BannerAdSize, BannerAdPosition } = window.Capacitor.Plugins;
+        // Dùng ADAPTIVE_BANNER để tự co giãn tràn 100% chiều ngang màn hình
         AdMob.showBanner({
           adId: APP_CONFIG.bannerAdId,
-          adSize: 'BANNER',
-          position: 'BOTTOM_CENTER',
+          adSize: BannerAdSize.ADAPTIVE_BANNER || 'ADAPTIVE_BANNER',
+          position: BannerAdPosition.BOTTOM_CENTER,
           margin: 0
         }).catch(err => console.log('Banner Err:', err));
       }
@@ -277,7 +283,7 @@
       }
     }
 
-    // 4. LOGIC CHUYỂN TAB & CÁC TÍNH NĂNG CHÍNH
+    // CHUYỂN TAB & CÁC TÍNH NĂNG
     function switchTab(tabId, screenName, btnEl) {
       document.querySelectorAll('.v1_tab_content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.v1_tab_btn').forEach(el => el.classList.remove('active'));
@@ -287,7 +293,10 @@
       trackUserInteraction(screenName);
     }
 
+    let lastCalculatedBill = null;
+
     function _exec_calc_bill() {
+      const roomName = document.getElementById('inp_room_name').value.trim() || 'Phòng trọ';
       const oldNum = parseFloat(document.getElementById('inp_elc_old').value) || 0;
       const newNum = parseFloat(document.getElementById('inp_elc_new').value) || 0;
       const elcPrice = parseFloat(document.getElementById('inp_elc_price').value) || 0;
@@ -300,16 +309,53 @@
       const totalWater = waterPrice * peopleCnt;
       const grandTotal = totalElc + totalWater + otherFee;
 
+      document.getElementById('res_room_name').innerText = roomName;
       document.getElementById('res_elc_kwh').innerText = kwh + ' kWh';
       document.getElementById('res_elc_money').innerText = totalElc.toLocaleString('vi-VN') + ' đ';
       document.getElementById('res_water_money').innerText = totalWater.toLocaleString('vi-VN') + ' đ';
       document.getElementById('res_total_money').innerText = grandTotal.toLocaleString('vi-VN') + ' đ';
       document.getElementById('resultBox').style.display = 'block';
 
+      lastCalculatedBill = {
+        room: roomName,
+        oldNum: oldNum,
+        newNum: newNum,
+        kwh: kwh,
+        totalElc: totalElc,
+        totalWater: totalWater,
+        otherFee: otherFee,
+        peopleCnt: peopleCnt,
+        grandTotal: grandTotal,
+        date: new Date().toLocaleDateString('vi-VN')
+      };
+
       const history = JSON.parse(localStorage.getItem('_bill_history') || '[]');
-      history.unshift({ date: new Date().toLocaleDateString('vi-VN'), total: grandTotal, kwh: kwh });
+      history.unshift(lastCalculatedBill);
       localStorage.setItem('_bill_history', JSON.stringify(history));
       _render_history();
+    }
+
+    // SAO CHÉP HÓA ĐƠN TRÌNH BÀY ĐẸP MẮT ĐỂ GỬI ZALO
+    function _copy_zalo_bill() {
+      if (!lastCalculatedBill) return;
+      const b = lastCalculatedBill;
+      const each = Math.round(b.grandTotal / b.peopleCnt);
+
+      const text = `⚡ HÓA ĐƠN TIỀN PHÒNG (${b.room}) - [${b.date}]
+---------------------------------
+🔹 Số điện: ${b.oldNum} ➔ ${b.newNum} (${b.kwh} kWh) = ${b.totalElc.toLocaleString('vi-VN')}đ
+🔹 Tiền nước (${b.peopleCnt} người): ${b.totalWater.toLocaleString('vi-VN')}đ
+🔹 Internet/Rác/Phí chung: ${b.otherFee.toLocaleString('vi-VN')}đ
+---------------------------------
+💰 TỔNG CỘNG: ${b.grandTotal.toLocaleString('vi-VN')} VNĐ
+👉 Mỗi người đóng: ${each.toLocaleString('vi-VN')} VNĐ`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Đã chép hóa đơn vào bộ nhớ tạm!\nBây giờ bạn có thể mở Zalo dán gửi ngay.");
+        pushLog('copy_zalo_bill', 'calc');
+      }).catch(() => {
+        alert("Lỗi chép bộ nhớ tạm. Hãy thử lại!");
+      });
     }
 
     function _split_member_bill() {
@@ -340,7 +386,7 @@
       if (history.length === 0) return;
       let html = '';
       history.slice(0, 5).forEach((h, i) => {
-        html += `<div style="padding:6px 0; border-bottom:1px solid #334155;">#${i+1} [${h.date}] - ${h.kwh} kWh - <strong>${h.total.toLocaleString('vi-VN')} đ</strong></div>`;
+        html += `<div style="padding:6px 0; border-bottom:1px solid #334155;">#${i+1} [${h.date}] ${h.room || 'Phòng'} - ${h.kwh} kWh - <strong>${h.grandTotal ? h.grandTotal.toLocaleString('vi-VN') : h.total.toLocaleString('vi-VN')} đ</strong></div>`;
       });
       document.getElementById('historyList').innerHTML = html;
     }
@@ -349,7 +395,7 @@
       _log_search_kw(kw);
     }
 
-    // 5. CLOUD BACKUP & RESTORE HỆ THỐNG
+    // CLOUD BACKUP & RESTORE
     async function _do_cloud_backup() {
       const email = document.getElementById('cloud_email').value.trim();
       const pass = document.getElementById('cloud_pass').value.trim();
@@ -365,10 +411,10 @@
       statusBox.style.color = '#38bdf8';
       statusBox.innerText = '⏳ Đang đồng bộ bản lưu lên Cloud...';
 
-      // Đóng gói toàn bộ state app thành 1 Object JSON
       const fullAppData = {
         bill_history: JSON.parse(localStorage.getItem('_bill_history') || '[]'),
         settings: {
+          room_name: document.getElementById('inp_room_name').value,
           old_elc: document.getElementById('inp_elc_old').value,
           new_elc: document.getElementById('inp_elc_new').value,
           elc_price: document.getElementById('inp_elc_price').value,
@@ -441,15 +487,14 @@
         if (data.status === 'success' && data.app_data_json) {
           const restored = JSON.parse(data.app_data_json);
 
-          // Phục hồi lịch sử
           if (restored.bill_history) {
             localStorage.setItem('_bill_history', JSON.stringify(restored.bill_history));
             _render_history();
           }
 
-          // Phục hồi cài đặt & form
           if (restored.settings) {
             const s = restored.settings;
+            if (s.room_name) document.getElementById('inp_room_name').value = s.room_name;
             if (s.old_elc) document.getElementById('inp_elc_old').value = s.old_elc;
             if (s.new_elc) document.getElementById('inp_elc_new').value = s.new_elc;
             if (s.elc_price) document.getElementById('inp_elc_price').value = s.elc_price;
@@ -475,7 +520,7 @@
       }
     }
 
-    // 6. CANVAS SCRATCHPAD
+    // CANVAS SCRATCHPAD
     let canvas, ctx, drawing = false;
 
     function initCanvas() {
@@ -506,7 +551,6 @@
       if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height); 
     }
 
-    // KHỞI CHẠY KHÔNG GÂY LỖI
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('lbl_user_uid').innerText = userUid;
       initCanvas();
