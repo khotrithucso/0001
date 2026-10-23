@@ -18,7 +18,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # 1. Tạo thư mục www và copy CSS/HTML
+      # 1. Tạo thư mục www và copy file web
       - run: npm init -y
       - run: mkdir -p www
       - run: cp index.html style.css www/ 2>/dev/null || true
@@ -26,18 +26,38 @@ jobs:
       # 2. Cài đặt Capacitor & AdMob Plugin
       - run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob esbuild
 
-      # 3. Đóng gói main.js (nếu có import) vào www/main.js
+      # 3. Đóng gói JS
       - run: npx esbuild main.js --bundle --outfile=www/main.js 2>/dev/null || cp main.js www/ 2>/dev/null || true
 
-      # 4. Khởi tạo Capacitor & Nền tảng Android
+      # 4. Khởi tạo Capacitor & Android
       - run: npx cap init "AppDienTro" "com.trithucso.tinhtiendientro_0001_x9z" --web-dir www
       - run: npx cap add android
 
-      # 5. CHÈN MÃ ADMOB APPLICATION_ID ĐỂ TRÁNH VĂNG OUT APP KHI MỞ
+      # 5. CẤU HÌNH BỎ QUA LỖI SSL MẠNG & CHÈN MÃ ADMOB AN TOÀN
       - run: |
-          sed -i '/<\/application>/i \    <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3940256099942544~3347511713"/>' android/app/src/main/AndroidManifest.xml
+          mkdir -p android/app/src/main/res/xml
+          echo '<?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="true">
+                  <trust-anchors>
+                      <certificates src="system" />
+                      <certificates src="user" />
+                  </trust-anchors>
+              </base-config>
+          </network-security-config>' > android/app/src/main/res/xml/network_security_config.xml
 
-      # 6. Sửa lỗi xung đột thư viện Kotlin trùng lặp
+          python3 -c "
+          with open('android/app/src/main/AndroidManifest.xml', 'r') as f:
+              content = f.read()
+          admob_meta = '<meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"ca-app-pub-3940256099942544~3347511713\"/>'
+          if 'APPLICATION_ID' not in content:
+              content = content.replace('</application>', f'    {admob_meta}\n    </application>')
+          content = content.replace('<application ', '<application android:networkSecurityConfig=\"@xml/network_security_config\" android:usesCleartextTraffic=\"true\" ')
+          with open('android/app/src/main/AndroidManifest.xml', 'w') as f:
+              f.write(content)
+          "
+
+      # 6. Xử lý xung đột Kotlin
       - run: |
           echo "
           configurations.all {
@@ -46,13 +66,11 @@ jobs:
           }
           " >> android/app/build.gradle
 
-      # 7. Đồng bộ Capacitor sang Android
+      # 7. Sync & Build APK
       - run: npx cap sync
-
-      # 8. Cấp quyền gradlew và biên dịch APK
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
 
-      # 9. Tải file APK lên Artifacts (ĐÃ NÂNG CẤP LÊN V4 CHUẨN)
+      # 8. Upload Artifact
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
