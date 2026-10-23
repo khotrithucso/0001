@@ -249,18 +249,18 @@
       }
     }
 
-    function showAdMobBanner() {
+        function showAdMobBanner() {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
-        const { AdMob, BannerAdSize, BannerAdPosition } = window.Capacitor.Plugins;
-        // Dùng ADAPTIVE_BANNER để tự co giãn tràn 100% chiều ngang màn hình
+        const { AdMob } = window.Capacitor.Plugins;
         AdMob.showBanner({
           adId: APP_CONFIG.bannerAdId,
-          adSize: BannerAdSize.ADAPTIVE_BANNER || 'ADAPTIVE_BANNER',
-          position: BannerAdPosition.BOTTOM_CENTER,
+          adSize: 'BANNER', // Chuẩn kích thước ổn định 100% không bao giờ lỗi
+          position: 'BOTTOM_CENTER',
           margin: 0
         }).catch(err => console.log('Banner Err:', err));
       }
     }
+
 
     function showAdMobInterstitial() {
       pushLog('ad_impression', 'interstitial_full_screen');
