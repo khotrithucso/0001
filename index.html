@@ -1,4 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sổ Tính Tiền Điện Trọ & Phí Sinh Hoạt Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-slate: #0f172a;
+      --card-slate: #1e293b;
+      --accent-emerald: #10b981;
+      --accent-hover: #059669;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-slate); color: var(--text-main); padding-bottom: 70px; }
+    
+    .v1_tro_header { background: var(--card-slate); padding: 16px; text-align: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+    .v1_tro_header h1 { font-size: 18px; color: var(--accent-emerald); }
+    
+    .v1_nav_tabs { display: flex; background: #111827; border-bottom: 1px solid var(--border-color); }
+    .v1_tab_btn { flex: 1; padding: 12px 4px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .v1_tab_btn.active { color: var(--accent-emerald); border-bottom-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.05); }
+
+    .v1_container { padding: 16px; max-width: 600px; margin: 0 auto; }
+    .v1_tab_content { display: none; }
+    .v1_tab_content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
+    .c_elc_card_x1 { background: var(--card-slate); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .c_elc_card_x1 h3 { font-size: 15px; margin-bottom: 12px; color: #38bdf8; display: flex; align-items: center; justify-content: space-between; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; }
+    .form-control:focus { border-color: var(--accent-emerald); }
+
+    .btn-submit { width: 100%; background: var(--accent-emerald); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-submit:active { transform: scale(0.98); background: var(--accent-hover); }
+
+    .result-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-emerald); padding: 14px; border-radius: 8px; margin-top: 12px; display: none; }
+    .result-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .result-total { font-size: 16px; font-weight: 700; color: var(--accent-emerald); border-top: 1px dashed var(--border-color); padding-top: 6px; margin-top: 6px; }
+
+    #scratchCanvas { background: #fff; border-radius: 8px; width: 100%; height: 180px; touch-action: none; cursor: crosshair; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <header class="v1_tro_header">
+    <h1>⚡ Sổ Tính Tiền Điện Trọ Pro</h1>
+  </header>
+
+  <nav class="v1_nav_tabs">
+    <button class="v1_tab_btn active" onclick="switchTab('tab_calc', 'Tính Tiền', this)">⚡ Tính Tiền</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_members', 'Chia Phòng', this)">👥 Chia Phòng</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_history', 'Lịch Sử', this)">📜 Lịch Sử</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_draw', 'Vẽ Nháp', this)">🎨 Vẽ Nháp</button>
+  </nav>
+
+  <div class="v1_container">
+
+    <!-- TAB 1: TÍNH TIỀN ĐIỆN NƯỚC -->
+    <div id="tab_calc" class="v1_tab_content active">
+      <div class="c_elc_card_x1">
+        <h3>1. Số Điện & Nước</h3>
+        <div class="form-group">
+          <label>Số điện cũ (kWh):</label>
+          <input type="number" id="inp_elc_old" class="form-control" value="1050">
+        </div>
+        <div class="form-group">
+          <label>Số điện mới (kWh):</label>
+          <input type="number" id="inp_elc_new" class="form-control" value="1120">
+        </div>
+        <div class="form-group">
+          <label>Đơn giá điện (đ/kWh):</label>
+          <input type="number" id="inp_elc_price" class="form-control" value="3500">
+        </div>
+      </div>
+
+      <div class="c_elc_card_x1">
+        <h3>2. Phí Sinh Hoạt Khác</h3>
+        <div class="form-group">
+          <label>Tiền nước cố định/đầu người (đ):</label>
+          <input type="number" id="inp_water_price" class="form-control" value="80000">
+        </div>
+        <div class="form-group">
+          <label>Số người ở:</label>
+          <input type="number" id="inp_people_cnt" class="form-control" value="3">
+        </div>
+        <div class="form-group">
+          <label>Internet + Rác + Phí chung (đ):</label>
+          <input type="number" id="inp_other_fee" class="form-control" value="150000">
+        </div>
+        <button class="btn-submit" onclick="_exec_calc_bill()">🧮 TÍNH TỔNG HÓA ĐƠN</button>
+      </div>
+
+      <div id="resultBox" class="result-box">
+        <div class="result-row"><span>Điện tiêu thụ:</span><span id="res_elc_kwh">0 kWh</span></div>
+        <div class="result-row"><span>Tiền điện:</span><span id="res_elc_money">0 đ</span></div>
+        <div class="result-row"><span>Tiền nước tổng:</span><span id="res_water_money">0 đ</span></div>
+        <div class="result-row result-total"><span>TỔNG TIỀN PHÒNG:</span><span id="res_total_money">0 đ</span></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CHIA TIỀN PHÒNG -->
+    <div id="tab_members" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>👥 Chia Đều Theo Thành Viên</h3>
+        <div class="form-group">
+          <label>Tên các thành viên (phẩy phân cách):</label>
+          <input type="text" id="inp_member_names" class="form-control" value="An, Bình, Cường" onchange="_log_search_kw(this.value)">
+        </div>
+        <button class="btn-submit" onclick="_split_member_bill()">💸 TÍNH TIỀN MỖI NGƯỜI</button>
+        <div id="splitResult" class="result-box" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: LỊCH SỬ HÓA ĐƠN -->
+    <div id="tab_history" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>📜 Lịch Sử Hóa Đơn Đã Lưu</h3>
+        <input type="text" id="inp_search_hist" class="form-control mb-2" placeholder="Tìm kiếm hóa đơn..." onkeyup="_filter_history(this.value)">
+        <div id="historyList" style="margin-top:10px; font-size:13px;">Chưa có lịch sử hóa đơn.</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CANVAS SCRATCHPAD -->
+    <div id="tab_draw" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>🎨 Vẽ Nháp / Ký Tên Hóa Đơn</h3>
+        <canvas id="scratchCanvas"></canvas>
+        <button class="btn-submit" style="background:#475569; margin-top:10px;" onclick="_clear_canvas()">🗑️ Xóa Bản Vẽ</button>
+      </div>
+    </div>
+
+  </div>
+
   <script>
+    // BẮT LỖI JS TOÀN CỤC (ALERT BÁO LỖI NẾU CÓ THAY VÌ MÀN HÌNH TRẮNG)
+    window.onerror = function (msg, url, line) {
+      alert("Lỗi Runtime App:\n" + msg + "\nTại dòng: " + line);
+      return false;
+    };
+
     const APP_CONFIG = {
       appToken: "com.trithucso.tinhtiendientro_0001_x9z",
       telemetryUrl: "https://khotrithucso.io.vn/apps/api/telemetry.php",
@@ -10,7 +159,7 @@
     let deviceId = localStorage.getItem('_app_dev_id') || ('dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
     localStorage.setItem('_app_dev_id', deviceId);
 
-    // 1. AN TOÀN TELEMETRY LOGGING
+    // 1. TELEMETRY LOGGING
     function pushLog(eventType, screenName, keyword = '') {
       const payload = {
         app_token: APP_CONFIG.appToken,
@@ -47,7 +196,6 @@
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
         try {
           const { AdMob } = window.Capacitor.Plugins;
-          // Khởi tạo SDK bắt buộc
           await AdMob.initialize({});
           showAdMobBanner();
         } catch (err) {
@@ -90,11 +238,11 @@
     }
 
     // 3. LOGIC APP
-    function switchTab(tabId, screenName) {
+    function switchTab(tabId, screenName, btnEl) {
       document.querySelectorAll('.v1_tab_content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.v1_tab_btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      if (event && event.currentTarget) event.currentTarget.classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
 
       trackUserInteraction(screenName);
     }
@@ -161,29 +309,44 @@
       _log_search_kw(kw);
     }
 
-    // 4. CANVAS SCRATCHPAD
-    const canvas = document.getElementById('scratchCanvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+    // 4. CANVAS SCRATCHPAD (AN TOÀN KHÔNG GÂY LỖI TRẮNG MÀN HÌNH)
+    let canvas, ctx, drawing = false;
 
     function initCanvas() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas = document.getElementById('scratchCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth || 300;
+      canvas.height = canvas.offsetHeight || 180;
       ctx.lineWidth = 3;
       ctx.strokeStyle = '#0f172a';
+
+      canvas.addEventListener('touchstart', (e) => { 
+        drawing = true; 
+        ctx.beginPath(); 
+        const rect = canvas.getBoundingClientRect(); 
+        ctx.moveTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); 
+      });
+      canvas.addEventListener('touchmove', (e) => { 
+        if(!drawing) return; 
+        const rect = canvas.getBoundingClientRect(); 
+        ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); 
+        ctx.stroke(); 
+      });
+      canvas.addEventListener('touchend', () => drawing = false);
     }
 
-    canvas.addEventListener('touchstart', (e) => { drawing = true; ctx.beginPath(); const rect = canvas.getBoundingClientRect(); ctx.moveTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); });
-    canvas.addEventListener('touchmove', (e) => { if(!drawing) return; const rect = canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); ctx.stroke(); });
-    canvas.addEventListener('touchend', () => drawing = false);
+    function _clear_canvas() { 
+      if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height); 
+    }
 
-    function _clear_canvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-    // KHỞI CHẠY KHÔNG VĂNG APP
+    // KHỞI CHẠY AN TOÀN
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
       _render_history();
       pushLog('app_start', 'home');
-      setTimeout(initAdMob, 1000); // Trì hoãn 1s để Capacitor load xong
+      setTimeout(initAdMob, 1000);
     });
   </script>
+</body>
+</html>
