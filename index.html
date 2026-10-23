@@ -249,17 +249,18 @@
       }
     }
 
-        function showAdMobBanner() {
+            function showAdMobBanner() {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
         const { AdMob } = window.Capacitor.Plugins;
         AdMob.showBanner({
           adId: APP_CONFIG.bannerAdId,
-          adSize: 'BANNER', // Chuẩn kích thước ổn định 100% không bao giờ lỗi
+          adSize: 'ADAPTIVE_BANNER', // Tự động co giãn full 100% chiều ngang màn hình
           position: 'BOTTOM_CENTER',
           margin: 0
         }).catch(err => console.log('Banner Err:', err));
       }
     }
+
 
 
     function showAdMobInterstitial() {

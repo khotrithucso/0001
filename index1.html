@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sổ Tính Tiền Điện Trọ & Phí Sinh Hoạt Pro V3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-slate: #0f172a;
+      --card-slate: #1e293b;
+      --accent-emerald: #10b981;
+      --accent-hover: #059669;
+      --accent-blue: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-slate); color: var(--text-main); padding-bottom: 75px; }
+    
+    .v1_tro_header { background: var(--card-slate); padding: 14px; text-align: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+    .v1_tro_header h1 { font-size: 17px; color: var(--accent-emerald); }
+    
+    .v1_nav_tabs { display: flex; background: #111827; border-bottom: 1px solid var(--border-color); overflow-x: auto; scrollbar-width: none; }
+    .v1_nav_tabs::-webkit-scrollbar { display: none; }
+    .v1_tab_btn { flex: 0 0 auto; min-width: 20%; padding: 12px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .v1_tab_btn.active { color: var(--accent-emerald); border-bottom-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.08); }
+
+    .v1_container { padding: 16px; max-width: 600px; margin: 0 auto; }
+    .v1_tab_content { display: none; }
+    .v1_tab_content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+
+    .c_elc_card_x1 { background: var(--card-slate); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .c_elc_card_x1 h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent-blue); display: flex; align-items: center; justify-content: space-between; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; }
+    .form-control:focus { border-color: var(--accent-emerald); }
+
+    .btn-submit { width: 100%; background: var(--accent-emerald); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+    .btn-submit:active { transform: scale(0.98); background: var(--accent-hover); }
+    .btn-secondary { background: #334155; color: #f8fafc; }
+    .btn-zalo { background: #0068ff; color: #fff; margin-top: 8px; }
+
+    .result-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-emerald); padding: 14px; border-radius: 8px; margin-top: 12px; display: none; }
+    .result-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .result-total { font-size: 15px; font-weight: 700; color: var(--accent-emerald); border-top: 1px dashed var(--border-color); padding-top: 6px; margin-top: 6px; }
+
+    .uid-badge { background: #0f172a; border: 1px solid var(--border-color); color: var(--accent-blue); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 11px; word-break: break-all; margin-bottom: 12px; }
+    .status-msg { padding: 10px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: none; text-align: center; font-weight: 600; }
+
+    #scratchCanvas { background: #fff; border-radius: 8px; width: 100%; height: 180px; touch-action: none; cursor: crosshair; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <header class="v1_tro_header">
+    <h1>⚡ Sổ Tính Tiền Điện Trọ Pro V3</h1>
+  </header>
+
+  <nav class="v1_nav_tabs">
+    <button class="v1_tab_btn active" onclick="switchTab('tab_calc', 'Tính Tiền', this)">⚡ Tính Tiền</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_members', 'Chia Phòng', this)">👥 Chia Phòng</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_history', 'Lịch Sử', this)">📜 Lịch Sử</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_draw', 'Vẽ Nháp', this)">🎨 Vẽ Nháp</button>
+    <button class="v1_tab_btn" onclick="switchTab('tab_cloud', 'Sao Lưu', this)">☁️ Sao Lưu</button>
+  </nav>
+
+  <div class="v1_container">
+
+    <!-- TAB 1: TÍNH TIỀN ĐIỆN NƯỚC -->
+    <div id="tab_calc" class="v1_tab_content active">
+      <div class="c_elc_card_x1">
+        <h3>1. Khai Báo Số Điện & Nước</h3>
+        <div class="form-group">
+          <label>Mã / Tên phòng trọ:</label>
+          <input type="text" id="inp_room_name" class="form-control" value="Phòng 101">
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;">
+            <label>Số điện cũ (kWh):</label>
+            <input type="number" id="inp_elc_old" class="form-control" value="1050">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Số điện mới (kWh):</label>
+            <input type="number" id="inp_elc_new" class="form-control" value="1120">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Đơn giá điện trọ (đ/kWh):</label>
+          <input type="number" id="inp_elc_price" class="form-control" value="3500">
+        </div>
+      </div>
+
+      <div class="c_elc_card_x1">
+        <h3>2. Phí Sinh Hoạt Khác</h3>
+        <div class="form-group">
+          <label>Tiền nước cố định/đầu người (đ):</label>
+          <input type="number" id="inp_water_price" class="form-control" value="80000">
+        </div>
+        <div class="form-group">
+          <label>Số người ở:</label>
+          <input type="number" id="inp_people_cnt" class="form-control" value="3">
+        </div>
+        <div class="form-group">
+          <label>Internet + Rác + Dịch vụ chung (đ):</label>
+          <input type="number" id="inp_other_fee" class="form-control" value="150000">
+        </div>
+        <button class="btn-submit" onclick="_exec_calc_bill()">🧮 TÍNH TỔNG HÓA ĐƠN</button>
+      </div>
+
+      <div id="resultBox" class="result-box">
+        <div class="result-row"><span>Phòng:</span><strong id="res_room_name">Phòng 101</strong></div>
+        <div class="result-row"><span>Điện tiêu thụ:</span><span id="res_elc_kwh">0 kWh</span></div>
+        <div class="result-row"><span>Tiền điện:</span><span id="res_elc_money">0 đ</span></div>
+        <div class="result-row"><span>Tiền nước tổng:</span><span id="res_water_money">0 đ</span></div>
+        <div class="result-row result-total"><span>TỔNG TIỀN PHÒNG:</span><span id="res_total_money">0 đ</span></div>
+        
+        <button class="btn-submit btn-zalo" onclick="_copy_zalo_bill()">📱 CHÉP HÓA ĐƠN GỬI ZALO</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: CHIA TIỀN PHÒNG -->
+    <div id="tab_members" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>👥 Chia Đều Theo Thành Viên</h3>
+        <div class="form-group">
+          <label>Tên các thành viên (phẩy phân cách):</label>
+          <input type="text" id="inp_member_names" class="form-control" value="An, Bình, Cường" onchange="_log_search_kw(this.value)">
+        </div>
+        <button class="btn-submit" onclick="_split_member_bill()">💸 TÍNH TIỀN MỖI NGƯỜI</button>
+        <div id="splitResult" class="result-box" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: LỊCH SỬ HÓA ĐƠN -->
+    <div id="tab_history" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>📜 Lịch Sử Hóa Đơn Đã Lưu</h3>
+        <input type="text" id="inp_search_hist" class="form-control mb-2" placeholder="Tìm kiếm hóa đơn..." onkeyup="_filter_history(this.value)">
+        <div id="historyList" style="margin-top:10px; font-size:13px;">Chưa có lịch sử hóa đơn.</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CANVAS SCRATCHPAD -->
+    <div id="tab_draw" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>🎨 Vẽ Nháp / Ký Tên Hóa Đơn</h3>
+        <canvas id="scratchCanvas"></canvas>
+        <button class="btn-submit btn-secondary" style="margin-top:10px;" onclick="_clear_canvas()">🗑️ Xóa Bản Vẽ</button>
+      </div>
+    </div>
+
+    <!-- TAB 5: SAO LƯU & PHỤC HỒI CLOUD -->
+    <div id="tab_cloud" class="v1_tab_content">
+      <div class="c_elc_card_x1">
+        <h3>☁️ Định Danh & Sao Lưu Dữ Liệu</h3>
+        <label style="font-size: 11px; color: var(--text-muted);">Mã User UID cố định của thiết bị:</label>
+        <div class="uid-badge" id="lbl_user_uid">Đang tải UID...</div>
+
+        <div class="form-group">
+          <label>Email cá nhân (Dùng để khôi phục):</label>
+          <input type="email" id="cloud_email" class="form-control" placeholder="nguyenvana@gmail.com">
+        </div>
+
+        <div class="form-group">
+          <label>Mật khẩu sao lưu (Bảo mật bản ghi):</label>
+          <input type="password" id="cloud_pass" class="form-control" placeholder="••••••••">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 14px;">
+          <button class="btn-submit" style="flex:1;" onclick="_do_cloud_backup()">☁️ SAO LƯU CLOUD</button>
+          <button class="btn-submit btn-secondary" style="flex:1;" onclick="_do_cloud_restore()">📥 PHỤC HỒI DỮ LIỆU</button>
+        </div>
+
+        <div id="cloudStatus" class="status-msg"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    window.onerror = function (msg, url, line) {
+      alert("Lỗi Runtime App:\n" + msg + "\nTại dòng: " + line);
+      return false;
+    };
+
+    const APP_CONFIG = {
+      appToken: "com.trithucso.tinhtiendientro_0001_x9z",
+      telemetryUrl: "https://khotrithucso.io.vn/apps/api/telemetry.php",
+      cloudSyncUrl: "https://khotrithucso.io.vn/apps/api/cloud_sync.php",
+      cloudRestoreUrl: "https://khotrithucso.io.vn/apps/api/cloud_restore.php",
+      adTriggerLimit: 5,
+      bannerAdId: "ca-app-pub-3940256099942544/6300978111",
+      interstitialAdId: "ca-app-pub-3940256099942544/1033173712"
+    };
+
+    let deviceId = localStorage.getItem('_app_dev_id') || ('dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
+    localStorage.setItem('_app_dev_id', deviceId);
+
+    let userUid = localStorage.getItem('_app_user_uid') || ('usr_' + Math.random().toString(36).substr(2, 10) + '_' + Date.now().toString(36));
+    localStorage.setItem('_app_user_uid', userUid);
+
+    // TELEMETRY
+    function pushLog(eventType, screenName, keyword = '') {
+      const payload = {
+        app_token: APP_CONFIG.appToken,
+        device_id: deviceId,
+        user_uid: userUid,
+        event_type: eventType,
+        screen_name: screenName,
+        keyword: keyword,
+        time: Math.floor(Date.now() / 1000)
+      };
+
+      const offlineQueue = JSON.parse(localStorage.getItem('_offline_logs') || '[]');
+      offlineQueue.push(payload);
+
+      if (navigator.onLine) {
+        fetch(APP_CONFIG.telemetryUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(offlineQueue)
+        }).then(res => res.json()).then(() => {
+          localStorage.removeItem('_offline_logs');
+        }).catch(err => {
+          localStorage.setItem('_offline_logs', JSON.stringify(offlineQueue));
+        });
+      } else {
+        localStorage.setItem('_offline_logs', JSON.stringify(offlineQueue));
+      }
+    }
+
+    // ADMOB SMART TRIGGER - ADAPTIVE BANNER FULL WIDTH
+    async function initAdMob() {
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
+        try {
+          const { AdMob } = window.Capacitor.Plugins;
+          await AdMob.initialize({});
+          showAdMobBanner();
+        } catch (err) {
+          console.log('AdMob Init Err:', err);
+        }
+      }
+    }
+
+        function showAdMobBanner() {
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
+        const { AdMob } = window.Capacitor.Plugins;
+        AdMob.showBanner({
+          adId: APP_CONFIG.bannerAdId,
+          adSize: 'BANNER', // Chuẩn kích thước ổn định 100% không bao giờ lỗi
+          position: 'BOTTOM_CENTER',
+          margin: 0
+        }).catch(err => console.log('Banner Err:', err));
+      }
+    }
+
+
+    function showAdMobInterstitial() {
+      pushLog('ad_impression', 'interstitial_full_screen');
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
+        const { AdMob } = window.Capacitor.Plugins;
+        AdMob.prepareInterstitial({ adId: APP_CONFIG.interstitialAdId })
+          .then(() => AdMob.showInterstitial())
+          .catch(err => console.log('AdMob Interstitial Err:', err));
+      }
+    }
+
+    function trackUserInteraction(screenName) {
+      pushLog('page_view', screenName);
+      let count = parseInt(localStorage.getItem('_act_cnt') || '0') + 1;
+      if (count >= APP_CONFIG.adTriggerLimit) {
+        showAdMobInterstitial();
+        localStorage.setItem('_act_cnt', '0');
+      } else {
+        localStorage.setItem('_act_cnt', count.toString());
+      }
+    }
+
+    // CHUYỂN TAB & CÁC TÍNH NĂNG
+    function switchTab(tabId, screenName, btnEl) {
+      document.querySelectorAll('.v1_tab_content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.v1_tab_btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
+
+      trackUserInteraction(screenName);
+    }
+
+    let lastCalculatedBill = null;
+
+    function _exec_calc_bill() {
+      const roomName = document.getElementById('inp_room_name').value.trim() || 'Phòng trọ';
+      const oldNum = parseFloat(document.getElementById('inp_elc_old').value) || 0;
+      const newNum = parseFloat(document.getElementById('inp_elc_new').value) || 0;
+      const elcPrice = parseFloat(document.getElementById('inp_elc_price').value) || 0;
+      const waterPrice = parseFloat(document.getElementById('inp_water_price').value) || 0;
+      const peopleCnt = parseFloat(document.getElementById('inp_people_cnt').value) || 1;
+      const otherFee = parseFloat(document.getElementById('inp_other_fee').value) || 0;
+
+      const kwh = Math.max(0, newNum - oldNum);
+      const totalElc = kwh * elcPrice;
+      const totalWater = waterPrice * peopleCnt;
+      const grandTotal = totalElc + totalWater + otherFee;
+
+      document.getElementById('res_room_name').innerText = roomName;
+      document.getElementById('res_elc_kwh').innerText = kwh + ' kWh';
+      document.getElementById('res_elc_money').innerText = totalElc.toLocaleString('vi-VN') + ' đ';
+      document.getElementById('res_water_money').innerText = totalWater.toLocaleString('vi-VN') + ' đ';
+      document.getElementById('res_total_money').innerText = grandTotal.toLocaleString('vi-VN') + ' đ';
+      document.getElementById('resultBox').style.display = 'block';
+
+      lastCalculatedBill = {
+        room: roomName,
+        oldNum: oldNum,
+        newNum: newNum,
+        kwh: kwh,
+        totalElc: totalElc,
+        totalWater: totalWater,
+        otherFee: otherFee,
+        peopleCnt: peopleCnt,
+        grandTotal: grandTotal,
+        date: new Date().toLocaleDateString('vi-VN')
+      };
+
+      const history = JSON.parse(localStorage.getItem('_bill_history') || '[]');
+      history.unshift(lastCalculatedBill);
+      localStorage.setItem('_bill_history', JSON.stringify(history));
+      _render_history();
+    }
+
+    // SAO CHÉP HÓA ĐƠN TRÌNH BÀY ĐẸP MẮT ĐỂ GỬI ZALO
+    function _copy_zalo_bill() {
+      if (!lastCalculatedBill) return;
+      const b = lastCalculatedBill;
+      const each = Math.round(b.grandTotal / b.peopleCnt);
+
+      const text = `⚡ HÓA ĐƠN TIỀN PHÒNG (${b.room}) - [${b.date}]
+---------------------------------
+🔹 Số điện: ${b.oldNum} ➔ ${b.newNum} (${b.kwh} kWh) = ${b.totalElc.toLocaleString('vi-VN')}đ
+🔹 Tiền nước (${b.peopleCnt} người): ${b.totalWater.toLocaleString('vi-VN')}đ
+🔹 Internet/Rác/Phí chung: ${b.otherFee.toLocaleString('vi-VN')}đ
+---------------------------------
+💰 TỔNG CỘNG: ${b.grandTotal.toLocaleString('vi-VN')} VNĐ
+👉 Mỗi người đóng: ${each.toLocaleString('vi-VN')} VNĐ`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Đã chép hóa đơn vào bộ nhớ tạm!\nBây giờ bạn có thể mở Zalo dán gửi ngay.");
+        pushLog('copy_zalo_bill', 'calc');
+      }).catch(() => {
+        alert("Lỗi chép bộ nhớ tạm. Hãy thử lại!");
+      });
+    }
+
+    function _split_member_bill() {
+      const grandTotalText = document.getElementById('res_total_money').innerText;
+      const total = parseFloat(grandTotalText.replace(/[^0-9]/g, '')) || 0;
+      const names = document.getElementById('inp_member_names').value.split(',').map(s => s.trim()).filter(Boolean);
+      
+      if (names.length === 0 || total === 0) {
+        alert('Vui lòng tính tổng hóa đơn ở Tab 1 trước!');
+        return;
+      }
+
+      const each = Math.round(total / names.length);
+      let html = `<div style="font-weight:700; margin-bottom:6px;">Mỗi người đóng: ${each.toLocaleString('vi-VN')} đ</div>`;
+      names.forEach(n => {
+        html += `<div class="result-row"><span>${n}:</span><span>${each.toLocaleString('vi-VN')} đ</span></div>`;
+      });
+      document.getElementById('splitResult').innerHTML = html;
+      document.getElementById('splitResult').style.display = 'block';
+    }
+
+    function _log_search_kw(kw) {
+      if (kw.trim().length > 2) pushLog('search_keyword', 'members', kw);
+    }
+
+    function _render_history() {
+      const history = JSON.parse(localStorage.getItem('_bill_history') || '[]');
+      if (history.length === 0) return;
+      let html = '';
+      history.slice(0, 5).forEach((h, i) => {
+        html += `<div style="padding:6px 0; border-bottom:1px solid #334155;">#${i+1} [${h.date}] ${h.room || 'Phòng'} - ${h.kwh} kWh - <strong>${h.grandTotal ? h.grandTotal.toLocaleString('vi-VN') : h.total.toLocaleString('vi-VN')} đ</strong></div>`;
+      });
+      document.getElementById('historyList').innerHTML = html;
+    }
+
+    function _filter_history(kw) {
+      _log_search_kw(kw);
+    }
+
+    // CLOUD BACKUP & RESTORE
+    async function _do_cloud_backup() {
+      const email = document.getElementById('cloud_email').value.trim();
+      const pass = document.getElementById('cloud_pass').value.trim();
+      const statusBox = document.getElementById('cloudStatus');
+
+      if (!email || !pass) {
+        alert('Vui lòng nhập Email và Mật khẩu sao lưu!');
+        return;
+      }
+
+      statusBox.style.display = 'block';
+      statusBox.style.background = '#1e293b';
+      statusBox.style.color = '#38bdf8';
+      statusBox.innerText = '⏳ Đang đồng bộ bản lưu lên Cloud...';
+
+      const fullAppData = {
+        bill_history: JSON.parse(localStorage.getItem('_bill_history') || '[]'),
+        settings: {
+          room_name: document.getElementById('inp_room_name').value,
+          old_elc: document.getElementById('inp_elc_old').value,
+          new_elc: document.getElementById('inp_elc_new').value,
+          elc_price: document.getElementById('inp_elc_price').value,
+          water_price: document.getElementById('inp_water_price').value,
+          people_cnt: document.getElementById('inp_people_cnt').value,
+          other_fee: document.getElementById('inp_other_fee').value,
+          members: document.getElementById('inp_member_names').value
+        },
+        backup_time: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch(APP_CONFIG.cloudSyncUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_token: APP_CONFIG.appToken,
+            user_uid: userUid,
+            email: email,
+            password: pass,
+            app_data_json: JSON.stringify(fullAppData)
+          })
+        });
+
+        const data = await res.json();
+        if (data.status === 'success') {
+          statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
+          statusBox.style.color = '#10b981';
+          statusBox.innerText = '✅ ' + data.message;
+          pushLog('cloud_backup_success', 'cloud');
+        } else {
+          statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          statusBox.style.color = '#ef4444';
+          statusBox.innerText = '❌ ' + data.message;
+        }
+      } catch (e) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.color = '#ef4444';
+        statusBox.innerText = '❌ Lỗi kết nối Server sao lưu!';
+      }
+    }
+
+    async function _do_cloud_restore() {
+      const email = document.getElementById('cloud_email').value.trim();
+      const pass = document.getElementById('cloud_pass').value.trim();
+      const statusBox = document.getElementById('cloudStatus');
+
+      if (!email || !pass) {
+        alert('Vui lòng nhập Email và Mật khẩu để phục hồi!');
+        return;
+      }
+
+      statusBox.style.display = 'block';
+      statusBox.style.background = '#1e293b';
+      statusBox.style.color = '#38bdf8';
+      statusBox.innerText = '⏳ Đang tải bản lưu từ Cloud...';
+
+      try {
+        const res = await fetch(APP_CONFIG.cloudRestoreUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_token: APP_CONFIG.appToken,
+            email: email,
+            password: pass
+          })
+        });
+
+        const data = await res.json();
+        if (data.status === 'success' && data.app_data_json) {
+          const restored = JSON.parse(data.app_data_json);
+
+          if (restored.bill_history) {
+            localStorage.setItem('_bill_history', JSON.stringify(restored.bill_history));
+            _render_history();
+          }
+
+          if (restored.settings) {
+            const s = restored.settings;
+            if (s.room_name) document.getElementById('inp_room_name').value = s.room_name;
+            if (s.old_elc) document.getElementById('inp_elc_old').value = s.old_elc;
+            if (s.new_elc) document.getElementById('inp_elc_new').value = s.new_elc;
+            if (s.elc_price) document.getElementById('inp_elc_price').value = s.elc_price;
+            if (s.water_price) document.getElementById('inp_water_price').value = s.water_price;
+            if (s.people_cnt) document.getElementById('inp_people_cnt').value = s.people_cnt;
+            if (s.other_fee) document.getElementById('inp_other_fee').value = s.other_fee;
+            if (s.members) document.getElementById('inp_member_names').value = s.members;
+          }
+
+          statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
+          statusBox.style.color = '#10b981';
+          statusBox.innerText = '🎉 ' + data.message + ' Đã phục hồi dữ liệu xong!';
+          pushLog('cloud_restore_success', 'cloud');
+        } else {
+          statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          statusBox.style.color = '#ef4444';
+          statusBox.innerText = '❌ ' + data.message;
+        }
+      } catch (e) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.color = '#ef4444';
+        statusBox.innerText = '❌ Lỗi kết nối Server phục hồi!';
+      }
+    }
+
+    // CANVAS SCRATCHPAD
+    let canvas, ctx, drawing = false;
+
+    function initCanvas() {
+      canvas = document.getElementById('scratchCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth || 300;
+      canvas.height = canvas.offsetHeight || 180;
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#0f172a';
+
+      canvas.addEventListener('touchstart', (e) => { 
+        drawing = true; 
+        ctx.beginPath(); 
+        const rect = canvas.getBoundingClientRect(); 
+        ctx.moveTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); 
+      });
+      canvas.addEventListener('touchmove', (e) => { 
+        if(!drawing) return; 
+        const rect = canvas.getBoundingClientRect(); 
+        ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top); 
+        ctx.stroke(); 
+      });
+      canvas.addEventListener('touchend', () => drawing = false);
+    }
+
+    function _clear_canvas() { 
+      if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height); 
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('lbl_user_uid').innerText = userUid;
+      initCanvas();
+      _render_history();
+      pushLog('app_start', 'home');
+      setTimeout(initAdMob, 1000);
+    });
+  </script>
+</body>
+</html>
