@@ -23,8 +23,8 @@ jobs:
       - run: mkdir -p www
       - run: cp index.html style.css www/ 2>/dev/null || true
 
-      # 2. Cài đặt Capacitor & AdMob Plugin
-      - run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob esbuild
+      # 2. Cài đặt Capacitor, AdMob Plugin & Capacitor Assets (Xử lý Icon)
+      - run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor-community/admob @capacitor/assets esbuild
 
       # 3. Đóng gói JS
       - run: npx esbuild main.js --bundle --outfile=www/main.js 2>/dev/null || cp main.js www/ 2>/dev/null || true
@@ -33,7 +33,15 @@ jobs:
       - run: npx cap init "AppDienTro" "com.trithucso.tinhtiendientro_0001_x9z" --web-dir www
       - run: npx cap add android
 
-      # 5. CẤU HÌNH BỎ QUA LỖI SSL MẠNG & CHÈN MÃ ADMOB AN TOÀN
+      # 5. TỰ ĐỘNG TẠO ICON APP TỪ FILE icon.png
+      - run: |
+          if [ -f "icon.png" ]; then
+            mkdir -p assets
+            cp icon.png assets/icon.png
+            npx @capacitor/assets generate --android
+          fi
+
+      # 6. CẤU HÌNH BỎ QUA LỖI SSL MẠNG & CHÈN MÃ ADMOB AN TOÀN
       - run: |
           mkdir -p android/app/src/main/res/xml
           echo '<?xml version="1.0" encoding="utf-8"?>
@@ -57,7 +65,7 @@ jobs:
               f.write(content)
           "
 
-      # 6. Xử lý xung đột Kotlin
+      # 7. Xử lý xung đột Kotlin
       - run: |
           echo "
           configurations.all {
@@ -66,11 +74,11 @@ jobs:
           }
           " >> android/app/build.gradle
 
-      # 7. Sync & Build APK
+      # 8. Sync & Build APK
       - run: npx cap sync
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
 
-      # 8. Upload Artifact
+      # 9. Upload Artifact
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
